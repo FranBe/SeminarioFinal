@@ -90,22 +90,22 @@ def resize_xml(xml_path, output_path, target_size):
     # Guardar el archivo XML redimensionado
     tree.write(output_path)
 
-def resize_etiquetas(original_annotations_folder, resized_annotations_folder, target_size, carpetas):
+def resize_etiquetas(carpeta_etiquetas, carpeta_etiquetas_resize, target_size, carpetas):
     """
     Redimensiona los archivos XML de anotaciones en las subcarpetas de la carpeta original y guarda los archivos redimensionados en una nueva carpeta.
 
     Parámetros:
-    original_annotations_folder (str): La ruta a la carpeta que contiene las etiquetas originales.
-    resized_annotations_folder (str): La ruta a la carpeta donde se guardarán las etiquetas redimensionadas.
+    carpeta_etiquetas (str): La ruta a la carpeta que contiene las etiquetas originales.
+    carpeta_etiquetas_resize (str): La ruta a la carpeta donde se guardarán las etiquetas redimensionadas.
     target_size (int): El tamaño objetivo al que se redimensionarán las etiquetas.
 
     """
     # Crear la carpeta de destino si no existe
-    os.makedirs(resized_annotations_folder, exist_ok=True)
+    os.makedirs(carpeta_etiquetas_resize, exist_ok=True)
 
     for carpeta in carpetas:
         # ruta completa de la subcarpeta
-        folder_path = os.path.join(original_annotations_folder, carpeta)
+        folder_path = os.path.join(carpeta_etiquetas, carpeta)
 
         # Listar todos los archivos XML en la subcarpeta
         xml_files = [f for f in os.listdir(folder_path) if f.endswith('.xml')]
@@ -118,7 +118,7 @@ def resize_etiquetas(original_annotations_folder, resized_annotations_folder, ta
             base_filename = os.path.splitext(xml_file)[0]
             
             # Ruta completa del archivo XML redimensionado en la carpeta de destino
-            output_xml_path = os.path.join(resized_annotations_folder, f"{base_filename}.xml")
+            output_xml_path = os.path.join(carpeta_etiquetas_resize, f"{base_filename}.xml")
             
             # llama al redimensionar XML
             resize_xml(xml_path, output_xml_path, target_size)
@@ -285,10 +285,10 @@ resize_images(original_folder, resized_folder)
 ######################################################################################
 # Ajusta las etiquetas a las imagenes redimesionadas
 ######################################################################################
-original_annotations_folder = '\\PCB_DATASET\\Annotations'
-resized_annotations_folder = '\\PCB_resized'
+carpeta_etiquetas = '\\PCB_DATASET\\Annotations'
+carpeta_etiquetas_resize = '\\PCB_resized'
 target_size = 640
-resize_etiquetas(original_annotations_folder, resized_annotations_folder, target_size)
+resize_etiquetas(carpeta_etiquetas, carpeta_etiquetas_resize, target_size)
 
 ######################################################################################
 # Divide el conjunto en entrenamiento y validación 80/20

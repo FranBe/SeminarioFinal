@@ -74,17 +74,25 @@ def YOLO_test_de_imagen():
     if result.stderr:
         print("Errores del comando:")
         print(result.stderr)
+        
 
+######################################################################################
 #Iniciar el YOLO, antes setear correctamente los parámetros
-
+######################################################################################
 ruta_archivo_yaml = '/yolov5/data.yaml'
 ruta_entrenamiento = '/PCB_split/train'
 ruta_validacion = '/PCB_split/val'
+######################################################################################
 # Ajusta configuración YAML
+######################################################################################
 YOLO_ajusta_yaml(ruta_archivo_yaml, ruta_entrenamiento, ruta_validacion, numero_clases, nombres_clases)
+######################################################################################
 # Entrena
+######################################################################################
 YOLO_entrenar_modelo()
+######################################################################################
 # Testear el modelo
+######################################################################################
 YOLO_test_de_imagen()
 
 

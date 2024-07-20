@@ -8,7 +8,6 @@ import cv2
 import matplotlib.pyplot as plt
 import random
 
-
 # Lista de carpetas que contienen las anotaciones
 carpetas = ['Spurious_copper', 'Mouse_bite', 'Open_circuit', 'Missing_hole', 'Spur', 'Short']
 # Diccionario que mapea nombres de clases a IDs
@@ -17,7 +16,7 @@ class_mapping = {'spurious_copper': 0, 'mouse_bite': 1, 'open_circuit': 2, 'miss
 
 def resize_images(original_folder, resized_folder,carpetas):
     """
-    Redimensiona las imágenes en las subcarpetas de la carpeta original y guarda las imágenes redimensionadas en una nueva carpeta.
+    Redimensiona las imágenes 640x640 píxeles que es el tamaño que consume el modelo en las subcarpetas de la carpeta original y guarda las imágenes redimensionadas en una nueva carpeta.
 
     Parámetros:
     original_folder (str): La ruta a la carpeta que contiene las subcarpetas con las imágenes originales.
@@ -38,24 +37,14 @@ def resize_images(original_folder, resized_folder,carpetas):
         os.makedirs(os.path.join(resized_folder, carpeta), exist_ok=True)
 
         for image in images:
-            # Ruta completa de la imagen original
+            # Ruta original
             image_path = os.path.join(folder_path, image)
-
-            # Abrir la imagen
             img = Image.open(image_path)
-
-            # Redimensionar la imagen a 640x640 píxeles que es el tamaño que consume el modelo
             resized_img = img.resize((640, 640))
-
-            # Ruta completa de la imagen redimensionada en la carpeta de destino
+            # destino
             output_path = os.path.join(resized_folder, carpeta, image)
-
             # Guardar la imagen redimensionada
             resized_img.save(output_path)
-
-            # Va imprimiendo el proceso
-            print(f"Procesada: {image}, Los archivos nuevos se almacenan en: {output_path}")
-
     print("Completado el cambio de tamaño de la imagen y guardado en una nueva carpeta.")
 
 def resize_xml(xml_path, output_path, target_size):
@@ -72,7 +61,7 @@ def resize_xml(xml_path, output_path, target_size):
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
-    # Redimensionar las etiquetas de tamaño
+    # Redimensiona las etiquetas de tamaño en base al nuevo target size
     for size in root.iter('size'):
         width = int(size.find('width').text)
         height = int(size.find('height').text)
@@ -106,23 +95,23 @@ def resize_etiquetas(original_annotations_folder, resized_annotations_folder, ta
     Redimensiona los archivos XML de anotaciones en las subcarpetas de la carpeta original y guarda los archivos redimensionados en una nueva carpeta.
 
     Parámetros:
-    original_annotations_folder (str): La ruta a la carpeta que contiene las anotaciones originales.
-    resized_annotations_folder (str): La ruta a la carpeta donde se guardarán las anotaciones redimensionadas.
-    target_size (int): El tamaño objetivo al que se redimensionarán las anotaciones.
+    original_annotations_folder (str): La ruta a la carpeta que contiene las etiquetas originales.
+    resized_annotations_folder (str): La ruta a la carpeta donde se guardarán las etiquetas redimensionadas.
+    target_size (int): El tamaño objetivo al que se redimensionarán las etiquetas.
 
     """
     # Crear la carpeta de destino si no existe
     os.makedirs(resized_annotations_folder, exist_ok=True)
 
     for carpeta in carpetas:
-        # Construir la ruta completa de la subcarpeta
+        # ruta completa de la subcarpeta
         folder_path = os.path.join(original_annotations_folder, carpeta)
 
         # Listar todos los archivos XML en la subcarpeta
         xml_files = [f for f in os.listdir(folder_path) if f.endswith('.xml')]
         
         for xml_file in tqdm(xml_files, desc=f"Procesando {carpeta}"):
-            # Ruta completa del archivo XML original
+            # XML original
             xml_path = os.path.join(folder_path, xml_file)
 
             # Obtener el nombre base del archivo sin la extensión
@@ -131,10 +120,8 @@ def resize_etiquetas(original_annotations_folder, resized_annotations_folder, ta
             # Ruta completa del archivo XML redimensionado en la carpeta de destino
             output_xml_path = os.path.join(resized_annotations_folder, f"{base_filename}.xml")
             
-            # Redimensionar el archivo XML
+            # llama al redimensionar XML
             resize_xml(xml_path, output_xml_path, target_size)
-
-            print(f"Procesado: {xml_file}, Los nuevos archivos se almacenan en: {output_xml_path}")
 
     print("Completado el redimensionamiento de archivos XML y guardado en una nueva carpeta.")
 
@@ -169,13 +156,13 @@ def split_dataset(source_folder, output_folder, train_ratio=0.8, val_ratio=0.2):
             else:
                 subset_folder = 'val'
 
-            # Rutas de los archivos XML y de imagen (JPG)
+            # Rutas de los archivos XML y de imagenes
             src_xml = os.path.join(source_folder, xml_file)
             dest_xml = os.path.join(output_folder, subset_folder, f'{base_filename}.xml')
             src_jpg = os.path.join(source_folder, f'{base_filename}.jpg')
             dest_jpg = os.path.join(output_folder, subset_folder, f'{base_filename}.jpg')
 
-            # Copiar los archivos XML y de imagen a la carpeta de destino correspondiente
+            # Copia segun tipo de destino
             copyfile(src_xml, dest_xml)
             copyfile(src_jpg, dest_jpg)
 
@@ -216,7 +203,7 @@ def convert_xml_to_yolo(xml_path, image_width, image_height, class_mapping):
 
 def create_yolo_labels(source_folder, output_folder, class_mapping):
     """
-    Crea etiquetas en formato YOLO a partir de archivos XML.
+    Crea etiquetas en formato YOLO a partir de archivos XML redimensionados.
 
     Parámetros:
     source_folder (str): Carpeta que contiene los archivos XML y las imágenes.
@@ -304,7 +291,7 @@ target_size = 640
 resize_etiquetas(original_annotations_folder, resized_annotations_folder, target_size)
 
 ######################################################################################
-# Divide el conjunto en entrenamiento y validación
+# Divide el conjunto en entrenamiento y validación 80/20
 ######################################################################################
 source_folder = '\\PCB_resized'
 output_folder = '\\PCB_split'

@@ -58,13 +58,6 @@ def resize_images(original_folder, resized_folder,carpetas):
 
     print("Completado el cambio de tamaño de la imagen y guardado en una nueva carpeta.")
 
-# Uso de la función
-original_folder = '\\PCB_DATASET\\images'
-resized_folder = '\\PCB_resized'
-resize_images(original_folder, resized_folder)
-
-
-
 def resize_xml(xml_path, output_path, target_size):
     """
     Redimensiona las anotaciones en un archivo XML para que se ajusten a un tamaño objetivo.
@@ -108,7 +101,7 @@ def resize_xml(xml_path, output_path, target_size):
     # Guardar el archivo XML redimensionado
     tree.write(output_path)
 
-def resize_annotations(original_annotations_folder, resized_annotations_folder, target_size, carpetas):
+def resize_etiquetas(original_annotations_folder, resized_annotations_folder, target_size, carpetas):
     """
     Redimensiona los archivos XML de anotaciones en las subcarpetas de la carpeta original y guarda los archivos redimensionados en una nueva carpeta.
 
@@ -144,14 +137,6 @@ def resize_annotations(original_annotations_folder, resized_annotations_folder, 
             print(f"Procesado: {xml_file}, Los nuevos archivos se almacenan en: {output_xml_path}")
 
     print("Completado el redimensionamiento de archivos XML y guardado en una nueva carpeta.")
-
-# Uso de la función
-original_annotations_folder = '\\PCB_DATASET\\Annotations'
-resized_annotations_folder = '\\PCB_resized'
-target_size = 640
-
-resize_annotations(original_annotations_folder, resized_annotations_folder, target_size)
-
 
 def split_dataset(source_folder, output_folder, train_ratio=0.8, val_ratio=0.2):
     """
@@ -193,13 +178,6 @@ def split_dataset(source_folder, output_folder, train_ratio=0.8, val_ratio=0.2):
             # Copiar los archivos XML y de imagen a la carpeta de destino correspondiente
             copyfile(src_xml, dest_xml)
             copyfile(src_jpg, dest_jpg)
-
-# Uso de la función
-source_folder = '\\PCB_resized'
-output_folder = '\\PCB_split'
-split_dataset(source_folder, output_folder)
-
-
 
 def convert_xml_to_yolo(xml_path, image_width, image_height, class_mapping):
     """
@@ -263,22 +241,6 @@ def create_yolo_labels(source_folder, output_folder, class_mapping):
             with open(output_path, 'w') as f:
                 f.write('\n'.join(labels))
 
-# Crear etiquetas YOLO para el conjunto de entrenamiento
-create_yolo_labels(
-    '\\PCB_split\\train', 
-    '\\PCB_split\\train', 
-    class_mapping
-)
-
-# Crear etiquetas YOLO para el conjunto de validación
-create_yolo_labels(
-    '\\PCB_split\\val', 
-    '\\PCB_split\\val', 
-    class_mapping
-)
-
-
-
 def visualizar_imagen_aleatoria_con_etiquetas(carpeta_imagenes, carpeta_etiquetas):
     """
     Visualiza una imagen aleatoria con sus etiquetas de un conjunto de datos para testear que las imágenes y sus etiquetas estén ajustadas correctamente.
@@ -326,13 +288,49 @@ def visualizar_imagen_aleatoria_con_etiquetas(carpeta_imagenes, carpeta_etiqueta
     plt.axis('off')
     plt.show()
 
+######################################################################################
+#redimensiona las imágenes
+######################################################################################
+original_folder = '\\PCB_DATASET\\images'
+resized_folder = '\\PCB_resized'
+resize_images(original_folder, resized_folder)
+
+######################################################################################
+# Ajusta las etiquetas a las imagenes redimesionadas
+######################################################################################
+original_annotations_folder = '\\PCB_DATASET\\Annotations'
+resized_annotations_folder = '\\PCB_resized'
+target_size = 640
+resize_etiquetas(original_annotations_folder, resized_annotations_folder, target_size)
+
+######################################################################################
+# Divide el conjunto en entrenamiento y validación
+######################################################################################
+source_folder = '\\PCB_resized'
+output_folder = '\\PCB_split'
+split_dataset(source_folder, output_folder)
+
+######################################################################################
+# Crear etiquetas YOLO para el conjunto de entrenamiento en base a los xml transformados
+######################################################################################
+create_yolo_labels(
+    '\\PCB_split\\train', 
+    '\\PCB_split\\train', 
+    class_mapping
+)
+
+# Crear etiquetas YOLO para el conjunto de validación en base a los xml transformados
+create_yolo_labels(
+    '\\PCB_split\\val', 
+    '\\PCB_split\\val', 
+    class_mapping
+)
+
+######################################################################################
+#Opcional, testeamos con una imagen si las etiquetas quedaron bien
+######################################################################################
 # Rutas a las carpetas de entrenamiento y etiquetas
 carpeta_entrenamiento = '/PCB_split/train'
 carpeta_etiquetas = '/PCB_split/train'
-
 # Llamar a la función para visualizar una imagen aleatoria con sus etiquetas
 visualizar_imagen_aleatoria_con_etiquetas(carpeta_entrenamiento, carpeta_etiquetas)
-
-
-
-
